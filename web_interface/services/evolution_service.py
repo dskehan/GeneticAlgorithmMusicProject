@@ -16,7 +16,7 @@ import sys
 sys.path.append('../../src')
 from genetic_music import GAConfig, AudioConfig
 from genetic_music.audio import AudioProcessor
-from genetic_music.simulator import AudioChromosome
+from genetic_music.simulator import AudioChromosome, GeneticSimulator
 
 
 class EvolutionService:
@@ -70,12 +70,19 @@ class EvolutionService:
                 elite_size=params.elite_size
             )
             
+            # Create genetic simulator
+            simulator = GeneticSimulator(ga_config, audio_config)
+            
+            # Set up callbacks for real-time updates
+            def progress_callback(progress_data):
+                self.active_jobs[job_id].update(progress_data)
+                asyncio.create_task(self._broadcast_update(job_id, websocket_manager))
+            
+            simulator.set_progress_callback(progress_callback)
+            
             # Initialize population
-            population = []
-            for i in range(ga_config.population_size):
-                chromosome = AudioChromosome.create_random(len(audio_data), random_state=i)
-                chromosome.calculate_fitness(audio_data)
-                population.append(chromosome)
+            simulator.initialize_population(audio_data)
+            population = simulator.population
             
             # Calculate initial statistics
             fitnesses = [chromo.fitness for chromo in population]

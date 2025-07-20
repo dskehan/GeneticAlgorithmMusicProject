@@ -38,7 +38,7 @@ import sys
 sys.path.append('../src')
 from genetic_music import GAConfig, AudioConfig
 from genetic_music.audio import AudioProcessor
-from genetic_music.simulator import AudioChromosome
+from genetic_music.simulator import AudioChromosome, GeneticSimulator
 
 # Import local services
 from services.evolution_service import EvolutionService
